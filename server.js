@@ -22,16 +22,20 @@ server.get('/', (req, res) => {
 // localhost:3001/weather?cityName=Seattle
 server.get('/weather', (req, res) => {
   //   console.log(req.query);
-  let cityWeather = weatherData.find(weather => {
-    if (weather.city_name.toLocaleLowerCase() === req.query.cityName) {
-      return weather;
-    }
-  });
+  try {
+    let cityWeather = weatherData.find(weather => {
+      if (weather.city_name.toLocaleLowerCase() === req.query.cityName) {
+        return weather;
+      }
+    });
     //   res.status(200).send(cityWeather.data);
-  let dataForWeather = cityWeather.data.map(weather => {
-    return new Forecast(weather);
-  });
-  res.status(200).send(dataForWeather);
+    let dataForWeather = cityWeather.data.map(weather => {
+      return new Forecast(weather);
+    });
+    res.status(200).send(dataForWeather);
+  } catch (err) {
+    res.status(500).send('Internal Server Error 500');
+  }
 });
 
 
