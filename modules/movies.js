@@ -4,6 +4,8 @@ const axios = require('axios');
 
 module.exports = getMovieHandler;
 
+let inMemory = {};
+
 
 function getMovieHandler(req, res) {
 
@@ -11,17 +13,24 @@ function getMovieHandler(req, res) {
 
   let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${movieName}`;
 
-  axios
-    .get(url)
-    .then(movieData => {
-      let dataForMovie = movieData.data.results.map(movies => {
-        return new Movie(movies);
-      });
-      res.status(200).send(dataForMovie);
+  if (inMemory[movieName] !== undefined) {
+    console.log('Data From Server');
+    res.status(200).send(inMemory[movieName]);
+  } else {
+    axios
+      .get(url)
+      .then(movieData => {
+        let dataForMovie = movieData.data.results.map(movies => {
+          return new Movie(movies);
+        });
+        inMemory[movieName] = movieData.data.results;
+        console.log('Data from req');
+        res.status(200).send(dataForMovie);
 
-    }).catch(err => {
-      res.status(500).send(`Internal Server Error 500 ${err}`);
-    });
+      }).catch(err => {
+        res.status(500).send(`Internal Server Error 500 ${err}`);
+      });
+  }
 }
 
 
